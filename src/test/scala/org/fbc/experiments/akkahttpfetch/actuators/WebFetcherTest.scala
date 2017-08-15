@@ -78,7 +78,7 @@ class WebFetcherTest extends FlatSpec with BeforeAndAfterEach {
   // `esponseFuture.map(_.headers.collect { case `Set-Cookie`(x) => HttpCookiePair.apply(x.name, x.value) })`
   // produces doubles.
   // Need to simulate replace mechanizm.
-  it should "simulate cookie replace when there are two cookie by the same name" in {
+  it should "simulate cookie replace when there are two cookies by the same name" in {
     import scala.concurrent.ExecutionContext.Implicits.global
     val cookiesF = Future{duplicatedCookies}
     val fixedF = WebFetcher.fixCookies(cookiesF)

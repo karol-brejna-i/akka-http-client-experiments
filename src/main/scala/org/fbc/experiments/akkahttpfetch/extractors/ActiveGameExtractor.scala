@@ -20,29 +20,19 @@
 package org.fbc.experiments.akkahttpfetch.extractors
 
 import com.typesafe.scalalogging.StrictLogging
+import org.fbc.experiments.akkahttpfetch.DocCleaner
 import org.fbc.experiments.akkahttpfetch.model.GameMetadata
-import org.htmlcleaner.{CleanerProperties, HtmlCleaner, PrettyXmlSerializer, TagNode}
 
 import scala.collection.immutable
-import scala.xml.{NodeSeq, XML}
+import scala.xml.{Elem, NodeSeq}
 
-object ActiveGameListExtractor extends StrictLogging {
-  def getHtmlCleaner(htmlString: String): TagNode = {
-    val cleaner = new HtmlCleaner()
-    cleaner.getProperties().setPruneTags("script,style")
-
-    val tagNode = cleaner.clean(htmlString)
-    logger.info(s"tagnode {}", tagNode)
-    tagNode
-  }
+object ActiveGameListExtractor extends StrictLogging with DocCleaner {
+  def apply(doc: String) = extractData(doc)
 
   def extractData(doc: String): immutable.Seq[GameMetadata] = {
     logger.info("getting games in progress")
 
-    val cleanedDoc = getHtmlCleaner(doc)
-
-    val cleanedHtml = new PrettyXmlSerializer(new CleanerProperties()).getAsString(cleanedDoc)
-    val docXml = XML.loadString(cleanedHtml)
+    val docXml: Elem = getXML(doc)
     val r = (((docXml \ "body" \ "div" \ "div")(3) \ "div")(1) \ "div" \ "div")(3)
 
     val games = getGamesInProgress(r)
