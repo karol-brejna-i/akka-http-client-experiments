@@ -24,7 +24,7 @@ import akka.http.scaladsl.model.headers.HttpCookie
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import org.fbc.experiments.akkahttpfetch.actuators.WebFetcher
-import org.fbc.experiments.akkahttpfetch.extractors.ActiveGameListExtractor
+import org.fbc.experiments.akkahttpfetch.extractors.{ActiveGameListExtractor, GameDetailsExtractor}
 
 import scala.concurrent._
 import scala.util.{Failure, Success}
@@ -46,15 +46,19 @@ object Main extends App with StrictLogging with Utils {
     }
   }
 
-  private def experiment3() = {
+  private def experiment() = {
     val responseF = WebFetcher.getGameDetailsDoc(login, password, "37747")
     responseF onComplete {
-      case Success(response) => logger.info("result! {}", response)
+      case Success(response) => {
+        val result = GameDetailsExtractor.extractData(response)
+//        logger.info("result! {}", result.size)
+        logger.info("result! {}", result)
+      }
       case Failure(e) => logger.error("Error from the future", e)
     }
   }
 
-    private def experiment() = {
+    private def getActiveGameList() = {
     val responseF = WebFetcher.getGamesInProgressDoc(login, password)
     responseF onComplete {
       case Success(response) => {

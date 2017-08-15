@@ -7,7 +7,7 @@
     <logger name="akka" level="DEBUG"/>
     <logger name="akka.actor.RepointableActorRef" level="INFO"/>
     <logger name="akka.io" level="DEBUG"/>
-    <logger name="org.fbc.experiments.akkahttpfetch" level="DEBUG"/>
+    <logger name="org.fbc.experiments.akkahttpfetch" level="INFO"/>
 
 
     <root level="INFO">
