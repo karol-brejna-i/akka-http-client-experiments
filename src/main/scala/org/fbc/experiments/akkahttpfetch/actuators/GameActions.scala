@@ -88,8 +88,8 @@ object GameActions extends StrictLogging {
     Http().singleRequest(request)
   }
 
-  private def interpreteNewGameResponse(doc: String)
-                               (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
+  def interpreteNewGameResponse(doc: String)
+                               (implicit ec: ExecutionContext)
   : Future[String]
   = {
     logger.info("interpreteNewGameResponse")
@@ -97,8 +97,7 @@ object GameActions extends StrictLogging {
     val docXml: Elem = getXML(doc)
     // BAJ doesn't validate input parameters and answers with "game created" - unless you are not logged in
     // (for example, you could give pTypePlateau=17 and the game gets created, with an empty board)
-    val gameId = extractInviteId((docXml \ "strong").text.trim)
-    println(s"----- ${gameId}")
+    val gameId = extractInviteId((docXml \\ "strong").text.trim)
     Future {
       gameId match {
         case Right(gameId) => gameId

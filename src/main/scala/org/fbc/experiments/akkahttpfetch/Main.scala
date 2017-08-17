@@ -95,7 +95,7 @@ object Main extends App with StrictLogging with Utils {
 
   }
   logger.info("Before fetch")
-  experiment()
+  startNewGame()
   logger.info("This is it....")
   harakiri2(14)
 }

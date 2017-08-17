@@ -89,10 +89,6 @@ object WebFetcher extends StrictLogging {
     Http().singleRequest(req)
   }
 
-  /**
-    *
-    * @param cookies seq of `Set-Cookie` or `HttpCookie` (not HttpCookiePair? - now that I think about it, it could be)
-    */
   def fixCookies(cookies: Future[Seq[HttpCookiePair]])(implicit ec: ExecutionContext): Future[Seq[HttpCookiePair]] = {
     import scala.collection.breakOut
     cookies.map(c => c.groupBy(_.name).map(_._2.last)(breakOut))
