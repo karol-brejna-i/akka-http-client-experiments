@@ -19,6 +19,7 @@
 
 package org.fbc.experiments.akkahttpfetch
 
+import java.io.PrintWriter
 import java.util.Calendar
 
 import akka.actor.ActorSystem
@@ -66,5 +67,17 @@ trait Utils extends StrictLogging {
     Await.result(f, Duration.Inf)
     logger.info(s"done waiting ${Calendar.getInstance().getTime()}")
     system.terminate()
+  }
+
+  def dumpToFile(fileName: String, contents: String): PrintWriter = {
+    new PrintWriter(fileName) { write(contents); close }
+  }
+
+  def logResult(result : Any) : Unit = {
+    logger.info(" result: {}", result)
+    result match {
+      case a : Traversable[Any] =>  logger.info(" result size: {}", a.size)
+      case _ =>
+    }
   }
 }

@@ -44,19 +44,15 @@ object GameDetailsExtractor extends StrictLogging with DocCleaner {
     GameBoard(mapPiecesToPositions(pieces), getGameMetadata(gameMetadataElement))
   }
 
-  def extractTurnMarker (node: NodeSeq) = {
+//  def extractTurnMarker (node: NodeSeq) = {
 //    node >> "input[name=pIdCoup]" >> attr("value")
-  }
+//  }
 
   private def getGameMetadata(metadataElement : NodeSeq) = {
-//    val gameId = (metadataElement  >> stext("tr:nth-child(1)")).split(" ")(1).substring(1)
     val gameId = ((metadataElement  \ "tr")(0)).text.trim.split(" ")(1).substring(1)
-//    val gameName = (metadataElement  >> stext("tr:nth-child(2)")).stripPrefix("\"").stripSuffix("\"")
     val gameName = ((metadataElement  \ "tr")(1)).text.trim.stripPrefix("\"").stripSuffix("\"").trim
     val lines = (metadataElement  \ "tr")(6) \ "td" \ "div" \ "table" \ "tbody" \ "tr"
-
     val isWhiteOnMove = (lines(0) \ "span" \@("style")).contains("red")
-
     GameMetadata(gameId, gameName, lines(0).text.trim, lines(2).text.trim, if (isWhiteOnMove) "WHITE" else "BLACK")
   }
 

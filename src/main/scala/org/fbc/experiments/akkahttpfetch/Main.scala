@@ -23,8 +23,9 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.headers.HttpCookie
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
-import org.fbc.experiments.akkahttpfetch.actuators.WebFetcher
+import org.fbc.experiments.akkahttpfetch.actuators.{GameActions, WebFetcher}
 import org.fbc.experiments.akkahttpfetch.extractors.{ActiveGameListExtractor, GameDetailsExtractor}
+import org.fbc.experiments.akkahttpfetch.model.{GameInvitation, SYMMETRICAL}
 
 import scala.concurrent._
 import scala.util.{Failure, Success}
@@ -38,7 +39,7 @@ object Main extends App with StrictLogging with Utils {
   val password = System.getenv().get("BAJ_PASSWORD")
   val login = System.getenv().get("BAJ_LOGIN")
 
-  private def experiment2() = {
+  private def getGamesInProgressDoc() = {
     val responseF = WebFetcher.getGamesInProgressDoc(login, password)
     responseF onComplete {
       case Success(response) => logger.info("result! {}", response)
@@ -46,12 +47,11 @@ object Main extends App with StrictLogging with Utils {
     }
   }
 
-  private def experiment() = {
+  private def getGameDetails() = {
     val responseF = WebFetcher.getGameDetailsDoc(login, password, "37747")
     responseF onComplete {
       case Success(response) => {
         val result = GameDetailsExtractor.extractData(response)
-//        logger.info("result! {}", result.size)
         logger.info("result! {}", result)
       }
       case Failure(e) => logger.error("Error from the future", e)
@@ -72,8 +72,30 @@ object Main extends App with StrictLogging with Utils {
     HttpCookie
   }
 
+  private def startNewGame() = {
+    val responseF = GameActions.startNewGame(login, password, GameInvitation("test1", None, None, Some("testuser"), SYMMETRICAL))
+    responseF onComplete {
+      case Success(result) => logResult(result)
+      case Failure(e) => {
+        logger.error("Error from the future", e)
+        logger.error("stack: {}", e.getMessage)
+      }
+    }
+  }
+
+  private def experiment() = {
+    val responseF = WebFetcher.loginPost(login, password)
+    responseF onComplete {
+      case Success(result) => logResult(result)
+      case Failure(e) => {
+        logger.error("Error from the future", e)
+        logger.error("stack: {}", e.getMessage)
+      }
+    }
+
+  }
   logger.info("Before fetch")
   experiment()
   logger.info("This is it....")
-  harakiri2(4)
+  harakiri2(14)
 }
