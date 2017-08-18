@@ -19,22 +19,24 @@
 package org.fbc.experiments.akkahttpfetch.actuators
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
+import org.fbc.experiments.akkahttpfetch.ProxyTools
 
 import scala.collection.immutable.{Map, Seq}
 import scala.concurrent.{ExecutionContext, Future}
 
 class WebFetcher
 
-object WebFetcher extends StrictLogging {
+object WebFetcher extends StrictLogging with ProxyTools {
   private val loginUri = "http://www.boiteajeux.net/gestion.php"
   private val inProgressUri = "http://www.boiteajeux.net/index.php?p=encours"
   private val gameDetailsUri = "http://www.boiteajeux.net/jeux/tza/partie.php?id=%s"
+
+  private lazy val proxySettings = getProxySettingsFromEnv()
 
   def loginPost(login: String, password: String)
                (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[Seq[HttpCookiePair]] = {
@@ -43,7 +45,7 @@ object WebFetcher extends StrictLogging {
 
     val entity = akka.http.scaladsl.model.FormData(form).toEntity(HttpCharsets.`UTF-8`)
     val loginRequest = HttpRequest(uri = loginUri, method = HttpMethods.POST, entity = entity)
-    val responseFuture: Future[HttpResponse] = Http().singleRequest(loginRequest)
+    val responseFuture: Future[HttpResponse] = singleRequestWithProxy(loginRequest)
 
     fixCookies(responseFuture.map(_.headers.collect { case `Set-Cookie`(x) => HttpCookiePair.apply(x.name, x.value) }))
   }
@@ -77,7 +79,7 @@ object WebFetcher extends StrictLogging {
     logger.info("getGamesInProgress")
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val req = HttpRequest(uri = inProgressUri, method = HttpMethods.GET, headers = headers)
-    Http().singleRequest(req)
+    singleRequestWithProxy(req)
   }
 
   private def getGamesDetailsResponse(cookies: Seq[HttpCookiePair], gameId: String)
@@ -86,7 +88,7 @@ object WebFetcher extends StrictLogging {
     logger.info("getGamesInProgress")
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val req = HttpRequest(uri = String.format(gameDetailsUri, gameId), method = HttpMethods.GET, headers = headers)
-    Http().singleRequest(req)
+    singleRequestWithProxy(req)
   }
 
   /**

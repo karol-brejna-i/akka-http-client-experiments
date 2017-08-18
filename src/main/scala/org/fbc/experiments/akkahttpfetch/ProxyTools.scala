@@ -23,12 +23,23 @@ package org.fbc.experiments.akkahttpfetch
 import java.net.InetSocketAddress
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.ClientTransport
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.{ClientTransport, Http}
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import com.typesafe.scalalogging.StrictLogging
 
+import scala.concurrent.Future
+
 trait ProxyTools extends StrictLogging {
-  def getProxySettings(envProxyValue: String)(implicit system: ActorSystem): ConnectionPoolSettings = {
+  def getProxySettingsFromEnv()
+//                             (implicit system: ActorSystem): ConnectionPoolSettings
+   = {
+    val proxy = System.getenv().get("http_proxy")
+    getProxySettings(proxy)
+  }
+
+  def getProxySettings(envProxyValue: String)
+                      (implicit system: ActorSystem): ConnectionPoolSettings = {
     if (!envProxyValue.isEmpty) {
       val parts = envProxyValue.split(":")
       if (parts.size != 3) {
@@ -43,5 +54,11 @@ trait ProxyTools extends StrictLogging {
       }
     }
     ConnectionPoolSettings(system)
+  }
+
+  def singleRequestWithProxy(request: HttpRequest)
+                            (implicit system: ActorSystem, fm: akka.stream.Materializer)
+  : Future[HttpResponse] = {
+    Http().singleRequest(request, settings = getProxySettingsFromEnv())
   }
 }
