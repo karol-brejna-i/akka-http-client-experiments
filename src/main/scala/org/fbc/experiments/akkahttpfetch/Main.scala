@@ -84,7 +84,8 @@ object Main extends App with StrictLogging with Utils {
   }
 
   private def experiment() = {
-    val responseF = WebFetcher.loginPost(login, password)
+    val inviteId = "37807"
+    val responseF = GameActions.joinGame(login, password, inviteId)
     responseF onComplete {
       case Success(result) => logResult(result)
       case Failure(e) => {
@@ -95,7 +96,7 @@ object Main extends App with StrictLogging with Utils {
 
   }
   logger.info("Before fetch")
-  startNewGame()
+  experiment()
   logger.info("This is it....")
   harakiri2(14)
 }

@@ -115,7 +115,29 @@ object GameActions extends StrictLogging {
       }
   }
 
-  def joinGame(cookies: Seq[HttpCookiePair], login: String, password: String) = ???
+  def joinGame(login: String, password: String, gameId: String)
+              (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
+  : Future[String]
+  = {
+    logger.info(s"joinGame $login, password, $gameId")
+    val result = for {
+      cookies <- WebFetcher.loginPost(login, password)
+      response <- joinGamePost(cookies, gameId)
+      doc <- responseFutureToDoc(response)
+    } yield doc
+    result
+  }
+
+  def joinGamePost(cookies: Seq[HttpCookiePair], gameId: String)
+                  (implicit system: ActorSystem, materializer: ActorMaterializer)
+  : Future[HttpResponse] = {
+    val form = Map(
+      "pAction" -> "rejoindre",
+      "inv" -> "i",
+      "id" -> s"tza-$gameId"
+    )
+    postForm(newGameUri, form, cookies)
+  }
 
 //
 //  // In every move-making stage there is a form submitted:
@@ -124,7 +146,7 @@ object GameActions extends StrictLogging {
 //  //    <input type="hidden" name="pL" value="">
 //  //    <input type="hidden" name="pC" value="">
 //  //    <input type="hidden" name="pIdCoup" value="598413fbb7dfb">
-//  //	<input type="button" class="clBouton" value="PASS" "="" onclick="faire('passer',0,0)">
+//  //  <input type="button" class="clBouton" value="PASS" "="" onclick="faire('passer',0,0)">
 //  //  </form>
 //  // Move stages (pAction) are:
 //  // * choose source (`choisirSource`)-> `destination` / `annuler`, or
