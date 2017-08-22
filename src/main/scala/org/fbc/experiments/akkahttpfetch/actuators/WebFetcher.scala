@@ -38,7 +38,7 @@ object WebFetcher extends StrictLogging with ProxyTools {
 
   def loginPost(login: String, password: String)
                (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[Seq[HttpCookiePair]] = {
-    logger.info("login")
+    logger.info("loginPost")
     val form = Map("p" -> "", "pAction" -> "login", "username" -> login, "password" -> password)
 
     val entity = akka.http.scaladsl.model.FormData(form).toEntity(HttpCharsets.`UTF-8`)
@@ -61,7 +61,7 @@ object WebFetcher extends StrictLogging with ProxyTools {
   def getGamesInProgressDoc(login: String, password: String)
                            (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
   : Future[String] = {
-    logger.info("tryfetch")
+    logger.info("getGamesInProgressDoc")
     for {
       cookies <- WebFetcher.loginPost(login, password)
       response <- WebFetcher.getGamesInProgressResponse(cookies)
@@ -72,7 +72,7 @@ object WebFetcher extends StrictLogging with ProxyTools {
   private def getGamesInProgressResponse(cookies: Seq[HttpCookiePair])
                                         (implicit system: ActorSystem, materializer: ActorMaterializer)
   : Future[HttpResponse] = {
-    logger.info("getGamesInProgress")
+    logger.info("getGamesInProgressResponse")
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val req = HttpRequest(uri = inProgressUri, method = HttpMethods.GET, headers = headers)
     singleRequestWithProxy(req)
@@ -81,7 +81,7 @@ object WebFetcher extends StrictLogging with ProxyTools {
   private def getGamesDetailsResponse(cookies: Seq[HttpCookiePair], gameId: String)
                                      (implicit system: ActorSystem, materializer: ActorMaterializer)
   : Future[HttpResponse] = {
-    logger.info("getGamesInProgress")
+    logger.info("getGamesDetailsResponse")
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val req = HttpRequest(uri = String.format(gameDetailsUri, gameId), method = HttpMethods.GET, headers = headers)
     singleRequestWithProxy(req)

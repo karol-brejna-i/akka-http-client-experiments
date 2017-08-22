@@ -96,11 +96,12 @@ object Main extends App with StrictLogging with DebugUtils {
         )
       )
     } yield result
-      logResult(result)
+
+    result.map(logResult(_))
   }
 
   logger.info("Before fetch")
   makeMove()
   logger.info("This is it....")
-  harakiri2(14)
+  harakiri2(10)
 }

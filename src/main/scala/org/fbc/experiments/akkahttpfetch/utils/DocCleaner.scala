@@ -32,7 +32,6 @@ trait DocCleaner extends StrictLogging {
     cleaner.getProperties().setPruneTags("script,style")
 
     val tagNode = cleaner.clean(htmlString)
-    logger.debug(s"tagnode {}", tagNode)
     tagNode
   }
 

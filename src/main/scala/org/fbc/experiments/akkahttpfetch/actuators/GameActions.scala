@@ -20,7 +20,6 @@
 package org.fbc.experiments.akkahttpfetch.actuators
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{Cookie, HttpCookiePair}
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -136,11 +135,14 @@ object GameActions extends StrictLogging with ProxyTools {
     require(fullMove.firstMove.moveType != PASS, "You cannot PASS on first move")
     require(fullMove.firstMove.moveType == CAPTURE, "First move must be capture")
 
-    makeCaptureOrStackMove(cookies, gameId, fullMove.firstMove)
-    fullMove.secondMove.moveType match {
-      case PASS => makePassMove(cookies, gameId)
-      case _ => makeCaptureOrStackMove(cookies, gameId, fullMove.secondMove)
-    }
+    for {
+      resp1 <- makeCaptureOrStackMove(cookies, gameId, fullMove.firstMove)
+      // possibility to use turn marker from the first move (now below code rereads the details page for this)
+      resp2 <- fullMove.secondMove.moveType match {
+        case PASS => makePassMove (cookies, gameId)
+        case _ => makeCaptureOrStackMove (cookies, gameId, fullMove.secondMove)
+      }
+    } yield resp2
   }
 
   def makePassMove(cookies: Seq[HttpCookiePair], gameId: String)
@@ -155,6 +157,7 @@ object GameActions extends StrictLogging with ProxyTools {
 
   def makeCaptureOrStackMove(cookies: Seq[HttpCookiePair], gameId: String, move: Move)
                             (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String] = {
+    logger.info("makeCaptureOrStackMove {}", move)
     require(move.from.nonEmpty && move.to.nonEmpty, "Capture or stack move needs `from` and `to`")
 
     for {
@@ -169,16 +172,16 @@ object GameActions extends StrictLogging with ProxyTools {
 
   private def postPassAction(cookies: Seq[HttpCookiePair], mark: String, gameId: String)
                             (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer) = {
-    logger.info("post move form with pass action")
+    logger.debug("post move form with pass action")
     val form = Map("pAction" -> PASS_ACTION, "pL" -> "", "pC" -> "", "pIdCoup" -> mark)
     postForm(String.format(moveUri, gameId), form, cookies)
   }
 
   private def postMoveAction(cookies: Seq[HttpCookiePair], mark: String, gameId: String, action: String, position: String)
                             (implicit system: ActorSystem, materializer: ActorMaterializer) = {
-    logger.info("post move form {}, {}", action, position)
+    logger.debug("post move form; mark: {}, action: {}, position: {}", mark, action, position)
     val (row, column) = new BajBoard().toPhysicalCoordinates(position)
-    logger.info("column and row for {} are {}", position, (column, row))
+    logger.debug("column and row for {} are {}", position, (column, row))
     val moveForm = Map("pAction" -> action, "pL" -> row.toString, "pC" -> column.toString, "pIdCoup" -> mark)
     postForm(String.format(moveUri, gameId), moveForm, cookies)
   }

@@ -31,6 +31,7 @@ import com.typesafe.scalalogging.StrictLogging
 import scala.concurrent.Future
 
 trait ProxyTools extends StrictLogging {
+
   def getProxySettingsFromEnv()(implicit system: ActorSystem): ConnectionPoolSettings = {
     val proxy = System.getenv().get("http_proxy")
     getProxySettings(proxy)
@@ -44,7 +45,7 @@ trait ProxyTools extends StrictLogging {
       } else {
         val proxyPort = parts(2)
         val proxyHost = parts(1).substring(2)
-        logger.info("Using proxy settings host: {}, port: {}.", proxyHost, proxyPort)
+        logger.debug("Using proxy settings host: {}, port: {}.", proxyHost, proxyPort)
 
         val transport = ClientTransport.httpsProxy(InetSocketAddress.createUnresolved(proxyHost, proxyPort.toInt))
         return ConnectionPoolSettings(system).withTransport(transport)
