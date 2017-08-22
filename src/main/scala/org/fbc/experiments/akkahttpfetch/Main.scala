@@ -26,12 +26,13 @@ import com.typesafe.scalalogging.StrictLogging
 import org.fbc.experiments.akkahttpfetch.actuators.{GameActions, WebFetcher}
 import org.fbc.experiments.akkahttpfetch.extractors.{ActiveGameListExtractor, GameDetailsExtractor}
 import org.fbc.experiments.akkahttpfetch.model._
+import org.fbc.experiments.akkahttpfetch.utils.DebugUtils
 
 import scala.concurrent._
 import scala.util.{Failure, Success}
 
 
-object Main extends App with StrictLogging with Utils {
+object Main extends App with StrictLogging with DebugUtils {
   implicit val system: ActorSystem = ActorSystem("fbc")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -85,7 +86,7 @@ object Main extends App with StrictLogging with Utils {
   }
 
   def makeMove(): Unit = {
-    val gameId = "37807"
+    val gameId = "37709"
     val result = for {
       cookies <- WebFetcher.loginPost(login, password)
       result <- GameActions.makeMove(cookies, gameId,

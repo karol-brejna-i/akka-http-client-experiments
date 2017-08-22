@@ -20,9 +20,9 @@
 package org.fbc.experiments.akkahttpfetch.extractors
 
 import com.typesafe.scalalogging.StrictLogging
-import org.fbc.experiments.akkahttpfetch.DocCleaner
 import org.fbc.experiments.akkahttpfetch.model.{GameBoard, GameMetadata, Piece}
 import org.fbc.experiments.akkahttpfetch.model.GameBoard.fieldNames
+import org.fbc.experiments.akkahttpfetch.utils.DocCleaner
 
 import scala.collection.immutable
 import scala.concurrent.Future
@@ -31,7 +31,7 @@ import scala.xml.{Node, NodeSeq, XML}
 object GameDetailsExtractor extends StrictLogging with DocCleaner {
 
 
-  def apply(doc: String) = extractData(doc)
+  def apply(doc: String): GameBoard = extractData(doc)
 
   def extractData(doc: String): GameBoard = {
     val docXml = getXML(doc)
@@ -103,8 +103,8 @@ object GameDetailsExtractor extends StrictLogging with DocCleaner {
     * but it keeps the empty center field (so we need to keep a name for it)
     * @return
     */
-  def transposedFiledNames = fieldNames.sliding(9, 9).toList.reverse.transpose
-  def fieldNameLookup = transposedFiledNames.flatten.zipWithIndex.filter{ it => (it._1 != "-" || it._2 == 40)}.unzip._1
+  def transposedFiledNames: List[List[String]] = fieldNames.sliding(9, 9).toList.reverse.transpose
+  def fieldNameLookup: List[String] = transposedFiledNames.flatten.zipWithIndex.filter{ it => (it._1 != "-" || it._2 == 40)}.unzip._1
 
   // the equivalent of above
   val bajFieldNames = List(
@@ -118,8 +118,8 @@ object GameDetailsExtractor extends StrictLogging with DocCleaner {
     "H6", "H5", "H4", "H3", "H2", "H1",
     "I5", "I4", "I3", "I2", "I1")
 
-  private def decodePiece(code: Tuple2[String, String]): Piece = {
-    new Piece(code._1 match {
+  private def decodePiece(code: (String, String)): Piece = {
+    Piece(code._1 match {
       case "1" => "TZAAR"
       case "2" => "TZAARA"
       case "3" => "TOOT"

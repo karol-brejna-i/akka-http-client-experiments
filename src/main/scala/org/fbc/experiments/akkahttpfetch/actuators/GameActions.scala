@@ -29,6 +29,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.fbc.experiments.akkahttpfetch.extractors.ActiveGameListExtractor.getXML
 import org.fbc.experiments.akkahttpfetch.extractors.GameDetailsExtractor
 import org.fbc.experiments.akkahttpfetch.model._
+import org.fbc.experiments.akkahttpfetch.utils.ProxyTools
 
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +37,7 @@ import scala.xml.Elem
 
 class GameActions
 
-object GameActions extends StrictLogging {
+object GameActions extends StrictLogging with ProxyTools {
   private val moveUri = "http://www.boiteajeux.net/jeux/tza/traitement.php?id=%s"
   private val newGameUri = "http://www.boiteajeux.net/gestion.php"
 
@@ -198,7 +199,7 @@ object GameActions extends StrictLogging {
     val entity = akka.http.scaladsl.model.FormData(form).toEntity(HttpCharsets.`UTF-8`)
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val request = HttpRequest(uri = uri, method = HttpMethods.POST, entity = entity, headers = headers)
-    Http().singleRequest(request)
+    singleRequestWithProxy(request)
   }
 
 }

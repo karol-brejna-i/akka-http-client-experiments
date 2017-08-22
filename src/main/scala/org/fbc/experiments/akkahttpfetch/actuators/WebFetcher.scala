@@ -24,7 +24,7 @@ import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
-import org.fbc.experiments.akkahttpfetch.ProxyTools
+import org.fbc.experiments.akkahttpfetch.utils.ProxyTools
 
 import scala.collection.immutable.{Map, Seq}
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,8 +35,6 @@ object WebFetcher extends StrictLogging with ProxyTools {
   private val loginUri = "http://www.boiteajeux.net/gestion.php"
   private val inProgressUri = "http://www.boiteajeux.net/index.php?p=encours"
   private val gameDetailsUri = "http://www.boiteajeux.net/jeux/tza/partie.php?id=%s"
-
-  private lazy val proxySettings = getProxySettingsFromEnv()
 
   def loginPost(login: String, password: String)
                (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[Seq[HttpCookiePair]] = {

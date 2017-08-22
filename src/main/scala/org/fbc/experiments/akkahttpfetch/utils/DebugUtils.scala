@@ -15,9 +15,10 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package org.fbc.experiments.akkahttpfetch
+package org.fbc.experiments.akkahttpfetch.utils
 
 import java.io.PrintWriter
 import java.util.Calendar
@@ -26,10 +27,10 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 
-trait Utils extends StrictLogging {
+trait DebugUtils extends StrictLogging {
   implicit val system: ActorSystem
   implicit val materializer: ActorMaterializer
   implicit val executionContext: ExecutionContextExecutor

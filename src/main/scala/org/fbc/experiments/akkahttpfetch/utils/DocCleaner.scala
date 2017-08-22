@@ -15,9 +15,10 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package org.fbc.experiments.akkahttpfetch
+package org.fbc.experiments.akkahttpfetch.utils
 
 import com.typesafe.scalalogging.StrictLogging
 import org.htmlcleaner.{CleanerProperties, HtmlCleaner, PrettyXmlSerializer, TagNode}

@@ -20,14 +20,14 @@
 package org.fbc.experiments.akkahttpfetch.extractors
 
 import com.typesafe.scalalogging.StrictLogging
-import org.fbc.experiments.akkahttpfetch.DocCleaner
 import org.fbc.experiments.akkahttpfetch.model.GameMetadata
+import org.fbc.experiments.akkahttpfetch.utils.DocCleaner
 
 import scala.collection.immutable
 import scala.xml.{Elem, NodeSeq}
 
 object ActiveGameListExtractor extends StrictLogging with DocCleaner {
-  def apply(doc: String) = extractData(doc)
+  def apply(doc: String): immutable.Seq[GameMetadata] = extractData(doc)
 
   def extractData(doc: String): immutable.Seq[GameMetadata] = {
     logger.info("getting games in progress")
@@ -60,6 +60,6 @@ object ActiveGameListExtractor extends StrictLogging with DocCleaner {
     val userBlack = users(1).text
     val sideOnMove = if (userOnMove == userWhite) "WHITE" else "BLACK"
 
-    new GameMetadata(gameId, gameName, userWhite, userBlack, sideOnMove)
+    GameMetadata(gameId, gameName, userWhite, userBlack, sideOnMove)
   }
 }
