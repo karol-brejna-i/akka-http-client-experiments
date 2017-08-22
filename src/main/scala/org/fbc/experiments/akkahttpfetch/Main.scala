@@ -25,7 +25,7 @@ import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import org.fbc.experiments.akkahttpfetch.actuators.{GameActions, WebFetcher}
 import org.fbc.experiments.akkahttpfetch.extractors.{ActiveGameListExtractor, GameDetailsExtractor}
-import org.fbc.experiments.akkahttpfetch.model.{GameInvitation, SYMMETRICAL}
+import org.fbc.experiments.akkahttpfetch.model._
 
 import scala.concurrent._
 import scala.util.{Failure, Success}
@@ -47,18 +47,7 @@ object Main extends App with StrictLogging with Utils {
     }
   }
 
-  private def getGameDetails() = {
-    val responseF = WebFetcher.getGameDetailsDoc(login, password, "37747")
-    responseF onComplete {
-      case Success(response) => {
-        val result = GameDetailsExtractor.extractData(response)
-        logger.info("result! {}", result)
-      }
-      case Failure(e) => logger.error("Error from the future", e)
-    }
-  }
-
-    private def getActiveGameList() = {
+  private def getActiveGameList() = {
     val responseF = WebFetcher.getGamesInProgressDoc(login, password)
     responseF onComplete {
       case Success(response) => {
@@ -83,7 +72,7 @@ object Main extends App with StrictLogging with Utils {
     }
   }
 
-  private def experiment() = {
+  private def joinGame() = {
     val inviteId = "37807"
     val responseF = GameActions.joinGame(login, password, inviteId)
     responseF onComplete {
@@ -93,10 +82,24 @@ object Main extends App with StrictLogging with Utils {
         logger.error("stack: {}", e.getMessage)
       }
     }
-
   }
+
+  def makeMove(): Unit = {
+    val gameId = "37807"
+    val result = for {
+      cookies <- WebFetcher.loginPost(login, password)
+      result <- GameActions.makeMove(cookies, gameId,
+        FullMove(
+          Move(CAPTURE, Some("C3"), Some("C6")),
+          Move(STACK, Some("C6"), Some("E7"))
+        )
+      )
+    } yield result
+      logResult(result)
+  }
+
   logger.info("Before fetch")
-  experiment()
+  makeMove()
   logger.info("This is it....")
   harakiri2(14)
 }

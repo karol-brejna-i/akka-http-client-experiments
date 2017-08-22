@@ -32,6 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class WebFetcher
 
 object WebFetcher extends StrictLogging {
+
   private val loginUri = "http://www.boiteajeux.net/gestion.php"
   private val inProgressUri = "http://www.boiteajeux.net/index.php?p=encours"
   private val gameDetailsUri = "http://www.boiteajeux.net/jeux/tza/partie.php?id=%s"
@@ -48,13 +49,11 @@ object WebFetcher extends StrictLogging {
     fixCookies(responseFuture.map(_.headers.collect { case `Set-Cookie`(x) => HttpCookiePair.apply(x.name, x.value) }))
   }
 
-
-  def getGameDetailsDoc(login: String, password: String, gameId: String)
+  def getGameDetailsDoc(cookies: Seq[HttpCookiePair], gameId: String)
                        (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
   : Future[String] = {
     logger.info("getGameDetailsDoc")
     for {
-      cookies <- WebFetcher.loginPost(login, password)
       response <- WebFetcher.getGamesDetailsResponse(cookies, gameId)
       doc <- Unmarshal(response.entity).to[String]
     } yield doc

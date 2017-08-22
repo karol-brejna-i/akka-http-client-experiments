@@ -25,9 +25,11 @@ import org.fbc.experiments.akkahttpfetch.model.{GameBoard, GameMetadata, Piece}
 import org.fbc.experiments.akkahttpfetch.model.GameBoard.fieldNames
 
 import scala.collection.immutable
+import scala.concurrent.Future
 import scala.xml.{Node, NodeSeq, XML}
 
 object GameDetailsExtractor extends StrictLogging with DocCleaner {
+
 
   def apply(doc: String) = extractData(doc)
 
@@ -43,10 +45,6 @@ object GameDetailsExtractor extends StrictLogging with DocCleaner {
     val pieces = getPieces(gameBoardElement)
     GameBoard(mapPiecesToPositions(pieces), getGameMetadata(gameMetadataElement))
   }
-
-//  def extractTurnMarker (node: NodeSeq) = {
-//    node >> "input[name=pIdCoup]" >> attr("value")
-//  }
 
   private def getGameMetadata(metadataElement : NodeSeq) = {
     val gameId = ((metadataElement  \ "tr")(0)).text.trim.split(" ")(1).substring(1)
@@ -133,4 +131,16 @@ object GameDetailsExtractor extends StrictLogging with DocCleaner {
     val regexPattern = """img/num(\d).gif""".r
     for (m <- regexPattern.findFirstMatchIn(code)) yield m.group(1).toInt
   }
+
+  /**
+    * BAJ uses kind of timestamp or turn "marker": a page that allows for submitting a (partial)move holds pIdCoup field.
+    * The value of the field is andvenced after the move. See GameActions.makeMove().
+    * @param doc string representation of html document
+    * @return
+    */
+  def extractTurnMarker(doc: String): String = {
+    val docXml = getXML(doc)
+    (docXml \\ "input").filter(n => n \@ "name" == "pIdCoup") \@ "value"
+  }
+
 }
