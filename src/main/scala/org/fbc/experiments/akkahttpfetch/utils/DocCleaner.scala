@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.fbc.experiments.akkahttpfetch
+package org.fbc.experiments.akkahttpfetch.utils
 
 import com.typesafe.scalalogging.StrictLogging
 import org.htmlcleaner.{CleanerProperties, HtmlCleaner, PrettyXmlSerializer, TagNode}
@@ -31,7 +31,6 @@ trait DocCleaner extends StrictLogging {
     cleaner.getProperties().setPruneTags("script,style")
 
     val tagNode = cleaner.clean(htmlString)
-    logger.debug(s"tagnode {}", tagNode)
     tagNode
   }
 

@@ -24,8 +24,7 @@ import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
-import org.fbc.experiments.akkahttpfetch.ProxyTools
-
+import org.fbc.experiments.akkahttpfetch.utils.ProxyTools
 import scala.collection.immutable.{Map, Seq}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,11 +35,9 @@ object WebFetcher extends StrictLogging with ProxyTools {
   private val inProgressUri = "http://www.boiteajeux.net/index.php?p=encours"
   private val gameDetailsUri = "http://www.boiteajeux.net/jeux/tza/partie.php?id=%s"
 
-  private lazy val proxySettings = getProxySettingsFromEnv()
-
   def loginPost(login: String, password: String)
                (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[Seq[HttpCookiePair]] = {
-    logger.info("login")
+    logger.info("loginPost")
     val form = Map("p" -> "", "pAction" -> "login", "username" -> login, "password" -> password)
 
     val entity = akka.http.scaladsl.model.FormData(form).toEntity(HttpCharsets.`UTF-8`)
@@ -50,13 +47,11 @@ object WebFetcher extends StrictLogging with ProxyTools {
     fixCookies(responseFuture.map(_.headers.collect { case `Set-Cookie`(x) => HttpCookiePair.apply(x.name, x.value) }))
   }
 
-
-  def getGameDetailsDoc(login: String, password: String, gameId: String)
+  def getGameDetailsDoc(cookies: Seq[HttpCookiePair], gameId: String)
                        (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
   : Future[String] = {
     logger.info("getGameDetailsDoc")
     for {
-      cookies <- WebFetcher.loginPost(login, password)
       response <- WebFetcher.getGamesDetailsResponse(cookies, gameId)
       doc <- Unmarshal(response.entity).to[String]
     } yield doc
@@ -65,7 +60,7 @@ object WebFetcher extends StrictLogging with ProxyTools {
   def getGamesInProgressDoc(login: String, password: String)
                            (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
   : Future[String] = {
-    logger.info("tryfetch")
+    logger.info("getGamesInProgressDoc")
     for {
       cookies <- WebFetcher.loginPost(login, password)
       response <- WebFetcher.getGamesInProgressResponse(cookies)
@@ -76,7 +71,7 @@ object WebFetcher extends StrictLogging with ProxyTools {
   private def getGamesInProgressResponse(cookies: Seq[HttpCookiePair])
                                         (implicit system: ActorSystem, materializer: ActorMaterializer)
   : Future[HttpResponse] = {
-    logger.info("getGamesInProgress")
+    logger.info("getGamesInProgressResponse")
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val req = HttpRequest(uri = inProgressUri, method = HttpMethods.GET, headers = headers)
     singleRequestWithProxy(req)
@@ -85,16 +80,12 @@ object WebFetcher extends StrictLogging with ProxyTools {
   private def getGamesDetailsResponse(cookies: Seq[HttpCookiePair], gameId: String)
                                      (implicit system: ActorSystem, materializer: ActorMaterializer)
   : Future[HttpResponse] = {
-    logger.info("getGamesInProgress")
+    logger.info("getGamesDetailsResponse")
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val req = HttpRequest(uri = String.format(gameDetailsUri, gameId), method = HttpMethods.GET, headers = headers)
     singleRequestWithProxy(req)
   }
 
-  /**
-    *
-    * @param cookies seq of `Set-Cookie` or `HttpCookie` (not HttpCookiePair? - now that I think about it, it could be)
-    */
   def fixCookies(cookies: Future[Seq[HttpCookiePair]])(implicit ec: ExecutionContext): Future[Seq[HttpCookiePair]] = {
     import scala.collection.breakOut
     cookies.map(c => c.groupBy(_.name).map(_._2.last)(breakOut))

@@ -17,18 +17,19 @@
  * under the License.
  */
 
-package org.fbc.experiments.akkahttpfetch
+package org.fbc.experiments.akkahttpfetch.utils
 
+import java.io.PrintWriter
 import java.util.Calendar
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 
-trait Utils extends StrictLogging {
+trait DebugUtils extends StrictLogging {
   implicit val system: ActorSystem
   implicit val materializer: ActorMaterializer
   implicit val executionContext: ExecutionContextExecutor
@@ -66,5 +67,17 @@ trait Utils extends StrictLogging {
     Await.result(f, Duration.Inf)
     logger.info(s"done waiting ${Calendar.getInstance().getTime()}")
     system.terminate()
+  }
+
+  def dumpToFile(fileName: String, contents: String): PrintWriter = {
+    new PrintWriter(fileName) { write(contents); close }
+  }
+
+  def logResult(result : Any) : Unit = {
+    logger.info(" result: {}", result)
+    result match {
+      case a : Traversable[Any] =>  logger.info(" result size: {}", a.size)
+      case _ =>
+    }
   }
 }

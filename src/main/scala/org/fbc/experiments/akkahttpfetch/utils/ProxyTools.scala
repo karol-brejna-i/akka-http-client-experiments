@@ -15,31 +15,28 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package org.fbc.experiments.akkahttpfetch
+package org.fbc.experiments.akkahttpfetch.utils
 
 import java.net.InetSocketAddress
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.{ClientTransport, Http}
 import akka.http.scaladsl.settings.ConnectionPoolSettings
+import akka.http.scaladsl.{ClientTransport, Http}
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.Future
 
 trait ProxyTools extends StrictLogging {
-  def getProxySettingsFromEnv()
-//                             (implicit system: ActorSystem): ConnectionPoolSettings
-   = {
-    val proxy = System.getenv().get("http_proxy")
+
+  def getProxySettingsFromEnv()(implicit system: ActorSystem): ConnectionPoolSettings = {
+    val proxy = System.getenv().getOrDefault("http_proxy", "")
     getProxySettings(proxy)
   }
 
-  def getProxySettings(envProxyValue: String)
-                      (implicit system: ActorSystem): ConnectionPoolSettings = {
+  def getProxySettings(envProxyValue: String)(implicit system: ActorSystem): ConnectionPoolSettings = {
     if (!envProxyValue.isEmpty) {
       val parts = envProxyValue.split(":")
       if (parts.size != 3) {
@@ -47,7 +44,7 @@ trait ProxyTools extends StrictLogging {
       } else {
         val proxyPort = parts(2)
         val proxyHost = parts(1).substring(2)
-        logger.info("Using proxy settings host: {}, port: {}.", proxyHost, proxyPort)
+        logger.debug("Using proxy settings host: {}, port: {}.", proxyHost, proxyPort)
 
         val transport = ClientTransport.httpsProxy(InetSocketAddress.createUnresolved(proxyHost, proxyPort.toInt))
         return ConnectionPoolSettings(system).withTransport(transport)
