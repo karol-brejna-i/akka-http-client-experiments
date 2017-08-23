@@ -15,7 +15,6 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
 package org.fbc.experiments.akkahttpfetch.utils
@@ -33,7 +32,7 @@ import scala.concurrent.Future
 trait ProxyTools extends StrictLogging {
 
   def getProxySettingsFromEnv()(implicit system: ActorSystem): ConnectionPoolSettings = {
-    val proxy = System.getenv().get("http_proxy")
+    val proxy = System.getenv().getOrDefault("http_proxy", "")
     getProxySettings(proxy)
   }
 

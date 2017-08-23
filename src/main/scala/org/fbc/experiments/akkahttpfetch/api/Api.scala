@@ -19,14 +19,18 @@
 
 package org.fbc.experiments.akkahttpfetch.api
 
-import org.fbc.experiments.akkahttpfetch.model.FullMove
+import org.fbc.experiments.akkahttpfetch.model.{FullMove, GameBoard}
 
 trait GameApi {
 
   def createGame(login: String, password: String):String = ???
 
-  def joinGame(login: String, password: String, gameId: String) = ???
+  def joinGame(login: String, password: String, gameId: String): Nothing = ???
 
-  def makeMove(login: String, password: String, gameId: String, fullMove: FullMove) = ???
+  def makeMove(login: String, password: String, gameId: String, fullMove: FullMove): Nothing = ???
+
+  def getActiveGames(login: String, password: String): Seq[GameBoard] = ???
+
+  def getGame(login: String, password: String, gameId: String) : GameBoard = ???
 
 }

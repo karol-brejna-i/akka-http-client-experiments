@@ -58,14 +58,13 @@ object GameActions extends StrictLogging with ProxyTools {
   }
 
   private def responseFutureToDoc(response: HttpResponse)
-                                 (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
+                                 (implicit ec: ExecutionContext, materializer: ActorMaterializer)
   : Future[String] = {
     Unmarshal(response.entity).to[String]
   }
 
   private def startNewGamePost(cookies: Seq[HttpCookiePair], invitation: GameInvitation)
                               (implicit system: ActorSystem, materializer: ActorMaterializer)
-
   : Future[HttpResponse] = {
     val form = Map(
       "pAction" -> "creer",
@@ -145,7 +144,7 @@ object GameActions extends StrictLogging with ProxyTools {
     } yield resp2
   }
 
-  def makePassMove(cookies: Seq[HttpCookiePair], gameId: String)
+  private def makePassMove(cookies: Seq[HttpCookiePair], gameId: String)
                   (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String] = {
     logger.info("makePassMove")
     for {
@@ -155,33 +154,32 @@ object GameActions extends StrictLogging with ProxyTools {
     } yield GameDetailsExtractor.extractTurnMarker(doc1)
   }
 
-  def makeCaptureOrStackMove(cookies: Seq[HttpCookiePair], gameId: String, move: Move)
+  private def makeCaptureOrStackMove(cookies: Seq[HttpCookiePair], gameId: String, move: Move)
                             (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String] = {
     logger.info("makeCaptureOrStackMove {}", move)
     require(move.from.nonEmpty && move.to.nonEmpty, "Capture or stack move needs `from` and `to`")
 
     for {
       doc <- WebFetcher.getGameDetailsDoc(cookies, gameId)
-      resp1 <- postMoveAction(cookies, GameDetailsExtractor.extractTurnMarker(doc), gameId, FROM_ACTION, move.from.get)
-      doc1 <- responseFutureToDoc(resp1)
-      resp2 <- postMoveAction(cookies, GameDetailsExtractor.extractTurnMarker(doc1), gameId, TO_ACTION, move.to.get)
-      doc2 <- responseFutureToDoc(resp2)
+      _ <- postMoveAction(cookies, GameDetailsExtractor.extractTurnMarker(doc), gameId, FROM_ACTION, move.from.get)
+      // if akka-http client would follow redirect, we wouldn't need to refetch game details page (we would just analyze response from above):
+      doc1 <- WebFetcher.getGameDetailsDoc(cookies, gameId)
+      _ <- postMoveAction(cookies, GameDetailsExtractor.extractTurnMarker(doc1), gameId, TO_ACTION, move.to.get)
+      doc2 <- WebFetcher.getGameDetailsDoc(cookies, gameId)
     } yield GameDetailsExtractor.extractTurnMarker(doc2)
   }
 
-
   private def postPassAction(cookies: Seq[HttpCookiePair], mark: String, gameId: String)
-                            (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer) = {
+                            (implicit system: ActorSystem, materializer: ActorMaterializer): Future[HttpResponse] = {
     logger.debug("post move form with pass action")
     val form = Map("pAction" -> PASS_ACTION, "pL" -> "", "pC" -> "", "pIdCoup" -> mark)
     postForm(String.format(moveUri, gameId), form, cookies)
   }
 
   private def postMoveAction(cookies: Seq[HttpCookiePair], mark: String, gameId: String, action: String, position: String)
-                            (implicit system: ActorSystem, materializer: ActorMaterializer) = {
+                            (implicit system: ActorSystem, materializer: ActorMaterializer): Future[HttpResponse] = {
     logger.debug("post move form; mark: {}, action: {}, position: {}", mark, action, position)
     val (row, column) = new BajBoard().toPhysicalCoordinates(position)
-    logger.debug("column and row for {} are {}", position, (column, row))
     val moveForm = Map("pAction" -> action, "pL" -> row.toString, "pC" -> column.toString, "pIdCoup" -> mark)
     postForm(String.format(moveUri, gameId), moveForm, cookies)
   }
@@ -197,7 +195,7 @@ object GameActions extends StrictLogging with ProxyTools {
   }
 
   private def postForm(uri: String, form: Map[String, String], cookies: Seq[HttpCookiePair])
-                      (implicit system: ActorSystem, materializer: ActorMaterializer)
+                      (implicit system: ActorSystem, materializer: ActorMaterializer): Future[HttpResponse]
   = {
     val entity = akka.http.scaladsl.model.FormData(form).toEntity(HttpCharsets.`UTF-8`)
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))

@@ -24,7 +24,7 @@ import akka.http.scaladsl.model.headers.HttpCookie
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import org.fbc.experiments.akkahttpfetch.actuators.{GameActions, WebFetcher}
-import org.fbc.experiments.akkahttpfetch.extractors.{ActiveGameListExtractor, GameDetailsExtractor}
+import org.fbc.experiments.akkahttpfetch.extractors.{ActiveGameListExtractor}
 import org.fbc.experiments.akkahttpfetch.model._
 import org.fbc.experiments.akkahttpfetch.utils.DebugUtils
 
@@ -87,7 +87,7 @@ object Main extends App with StrictLogging with DebugUtils {
 
   def makeMove(): Unit = {
     val gameId = "37709"
-    val result = for {
+    val r = for {
       cookies <- WebFetcher.loginPost(login, password)
       result <- GameActions.makeMove(cookies, gameId,
         FullMove(
@@ -97,7 +97,7 @@ object Main extends App with StrictLogging with DebugUtils {
       )
     } yield result
 
-    result.map(logResult(_))
+    r.foreach(logResult(_))
   }
 
   logger.info("Before fetch")
