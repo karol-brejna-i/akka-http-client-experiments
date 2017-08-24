@@ -48,8 +48,17 @@ object GameActions extends StrictLogging with ProxyTools {
                   (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String]
   = {
     logger.info(s"startNewGame $login, password, $invitation")
-    val result = for {
+    for {
       cookies <- WebFetcher.loginPost(login, password)
+      gameId <- startNewGame(cookies, invitation)
+    } yield gameId
+  }
+
+  def startNewGame(cookies: Seq[HttpCookiePair], invitation: GameInvitation)
+                  (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String]
+  = {
+    logger.info(s"startNewGame with cookies $invitation")
+    val result = for {
       response <- startNewGamePost(cookies, invitation)
       doc <- responseFutureToDoc(response)
       gameId <- interpreteNewGameResponse(doc)

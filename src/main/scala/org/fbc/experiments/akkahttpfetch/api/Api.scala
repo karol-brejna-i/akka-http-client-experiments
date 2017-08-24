@@ -19,11 +19,15 @@
 
 package org.fbc.experiments.akkahttpfetch.api
 
-import org.fbc.experiments.akkahttpfetch.model.{FullMove, GameBoard}
+import com.typesafe.scalalogging.StrictLogging
+import org.fbc.experiments.akkahttpfetch.actuators.GameActions.{interpreteNewGameResponse, logger, responseFutureToDoc, startNewGamePost}
+import org.fbc.experiments.akkahttpfetch.actuators.WebFetcher
+import org.fbc.experiments.akkahttpfetch.model.{FullMove, GameBoard, GameInvitation}
 
-trait GameApi {
+trait GameApi extends StrictLogging {
 
-  def createGame(login: String, password: String):String = ???
+  def createGame(login: String, password: String, invitation: GameInvitation):String = ???
+
 
   def joinGame(login: String, password: String, gameId: String): Nothing = ???
 
