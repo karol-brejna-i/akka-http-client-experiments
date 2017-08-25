@@ -18,11 +18,12 @@
  */
 
 package org.fbc.experiments.akkahttpfetch.model
+
 import scala.collection.immutable
 
 sealed trait BoardRepresentations {
 
-  def fieldNames: Seq[String]
+  def fieldNames: immutable.Seq[String]
 
   /**
     * Converts logical board position ("A1", "E8", ...) to physical coordinate system used by given implementation
@@ -40,7 +41,7 @@ sealed trait BoardRepresentations {
 }
 
 class BajBoard extends BoardRepresentations {
-  override def fieldNames: Seq[String] = List(
+  override def fieldNames: immutable.Seq[String] = List(
     "A5", "A4", "A3", "A2", "A1",
     "B6", "B5", "B4", "B3", "B2", "B1",
     "C7", "C6", "C5", "C4", "C3", "C2", "C1",
@@ -60,4 +61,3 @@ class BajBoard extends BoardRepresentations {
     (row, column)
   }
 }
-

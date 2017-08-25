@@ -46,25 +46,10 @@ trait DebugUtils extends StrictLogging {
     }
   }
 
-  def harakiri2(agony: Int = 5): Unit = {
+  def harakiri(agony: Int = 5): Unit = {
     val fs = (1 to agony)
     logger.info(s"awaiting to die ${Calendar.getInstance().getTime()}")
     Await.ready(performSequentially(fs) { i => Future { Thread.sleep(1000); logger.info("hello " + i) }}, Duration.Inf)
-    logger.info(s"done waiting ${Calendar.getInstance().getTime()}")
-    system.terminate()
-  }
-
-  def harakiri(agony: Int = 5): Unit = {
-    val fs = (1 to agony).map { i =>
-      Future {
-        Thread.sleep(1000)
-        logger.info("hello " + i)
-        i
-      }
-    }
-    val f = Future.sequence(fs)
-    logger.info(s"awaiting to die ${Calendar.getInstance().getTime()}")
-    Await.result(f, Duration.Inf)
     logger.info(s"done waiting ${Calendar.getInstance().getTime()}")
     system.terminate()
   }

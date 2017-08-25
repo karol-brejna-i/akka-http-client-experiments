@@ -44,22 +44,18 @@ object GameActions extends StrictLogging with ProxyTools {
   private val TO_ACTION = "destination"
   private val PASS_ACTION = "passer"
 
-  def startNewGame(login: String, password: String, invitation: GameInvitation)
-                  (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String]
-  = {
-    logger.info(s"startNewGame $login, password, $invitation")
+  def startNewGame(cookies: Seq[HttpCookiePair], invitation: GameInvitation)
+                  (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String] = {
+    logger.info(s"startNewGame with cookies $invitation")
     val result = for {
-      cookies <- WebFetcher.loginPost(login, password)
       response <- startNewGamePost(cookies, invitation)
-      doc <- responseFutureToDoc(response)
+      doc <- responseToDoc(response)
       gameId <- interpreteNewGameResponse(doc)
     } yield gameId
     result
   }
 
-  private def responseFutureToDoc(response: HttpResponse)
-                                 (implicit ec: ExecutionContext, materializer: ActorMaterializer)
-  : Future[String] = {
+  private def responseToDoc(response: HttpResponse)(implicit ec: ExecutionContext, materializer: ActorMaterializer): Future[String] = {
     Unmarshal(response.entity).to[String]
   }
 
@@ -100,15 +96,15 @@ object GameActions extends StrictLogging with ProxyTools {
       }
   }
 
-  def joinGame(login: String, password: String, gameId: String)
+  def joinGame(cookies: Seq[HttpCookiePair], gameId: String)
               (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
-  : Future[String]
-  = {
-    logger.info(s"joinGame $login, password, $gameId")
+  : Future[String] = {
+    logger.info(s"joinGame $gameId")
     val result = for {
-      cookies <- WebFetcher.loginPost(login, password)
       response <- joinGamePost(cookies, gameId)
-      doc <- responseFutureToDoc(response)
+      // joinGame in BAJ returns 302 (no real answer) so there is no chance to check if the operation was successful
+      // probably we'll need to check if the accepted gameId showed in active game list
+      doc <- responseToDoc(response)
     } yield doc
     result
   }
@@ -127,8 +123,7 @@ object GameActions extends StrictLogging with ProxyTools {
   // The only "strange" thing here is `pIdCoup` parameter. (It's probably some kind of timestamp or turn "marker".)
   // I am not sure if it is required. For beginning, I'll send it exactly as original BAJ page does
   def makeMove(cookies: Seq[HttpCookiePair], gameId: String, fullMove: FullMove)
-              (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
-  : Future[String] = {
+              (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer): Future[String] = {
     logger.info("makeMove {}", fullMove)
 
     require(fullMove.firstMove.moveType != PASS, "You cannot PASS on first move")
@@ -150,7 +145,7 @@ object GameActions extends StrictLogging with ProxyTools {
     for {
       doc <- WebFetcher.getGameDetailsDoc(cookies, gameId)
       resp <- postPassAction(cookies, GameDetailsExtractor.extractTurnMarker(doc), gameId)
-      doc1 <- responseFutureToDoc(resp)
+      doc1 <- responseToDoc(resp)
     } yield GameDetailsExtractor.extractTurnMarker(doc1)
   }
 
@@ -195,12 +190,10 @@ object GameActions extends StrictLogging with ProxyTools {
   }
 
   private def postForm(uri: String, form: Map[String, String], cookies: Seq[HttpCookiePair])
-                      (implicit system: ActorSystem, materializer: ActorMaterializer): Future[HttpResponse]
-  = {
+                      (implicit system: ActorSystem, materializer: ActorMaterializer): Future[HttpResponse]  = {
     val entity = akka.http.scaladsl.model.FormData(form).toEntity(HttpCharsets.`UTF-8`)
     val headers: Seq[HttpHeader] = if (cookies.isEmpty) Seq.empty else Seq(Cookie(cookies))
     val request = HttpRequest(uri = uri, method = HttpMethods.POST, entity = entity, headers = headers)
     singleRequestWithProxy(request)
   }
-
 }
