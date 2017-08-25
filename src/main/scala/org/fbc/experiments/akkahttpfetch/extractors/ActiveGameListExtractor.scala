@@ -40,7 +40,7 @@ object ActiveGameListExtractor extends StrictLogging with DocCleaner {
   }
 
   private def getGamesInProgress(gameListNode: NodeSeq) = {
-    logger.info("getGamesInProgress")
+    logger.debug("getGamesInProgress")
 //    val idx = gameListPage.toHtml.indexOf("You have to log in to access this page!")
 //    if (idx > 0) {
 //      logger.warn(s"Obtaining games in progress, but not logged in.")
@@ -50,7 +50,7 @@ object ActiveGameListExtractor extends StrictLogging with DocCleaner {
   }
 
   private def extractGameListItem(node: NodeSeq) = {
-    logger.info(s"extractGameListItem")
+    logger.debug(s"extractGameListItem")
     val elements = node \ "div"
     val gameId = elements(0).text.trim
     val gameName = elements(1).text.trim

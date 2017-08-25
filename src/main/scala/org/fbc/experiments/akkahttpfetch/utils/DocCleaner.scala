@@ -41,5 +41,4 @@ trait DocCleaner extends StrictLogging {
     val docXml = XML.loadString(cleanedHtml)
     docXml
   }
-
 }

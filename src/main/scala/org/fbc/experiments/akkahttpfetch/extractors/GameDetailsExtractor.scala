@@ -19,9 +19,6 @@
 
 package org.fbc.experiments.akkahttpfetch.extractors
 
-import java.io.PrintWriter
-import java.time.Instant
-
 import com.typesafe.scalalogging.StrictLogging
 import org.fbc.experiments.akkahttpfetch.model.{GameBoard, GameMetadata, Piece}
 import org.fbc.experiments.akkahttpfetch.model.GameBoard.fieldNames
@@ -141,12 +138,7 @@ object GameDetailsExtractor extends StrictLogging with DocCleaner {
     * @return
     */
   def extractTurnMarker(doc: String): String = {
-    val now = Instant.now.getEpochSecond
     val docXml = getXML(doc)
     (docXml \\ "input").filter(n => n \@ "name" == "pIdCoup") \@ "value"
-  }
-
-  def dumpToFile(fileName: String, contents: String): PrintWriter = {
-    new PrintWriter(fileName) { write(contents); close }
   }
 }

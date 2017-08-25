@@ -57,12 +57,11 @@ object WebFetcher extends StrictLogging with ProxyTools {
     } yield doc
   }
 
-  def getGamesInProgressDoc(login: String, password: String)
+  def getGamesInProgressDoc(cookies: Seq[HttpCookiePair])
                            (implicit ec: ExecutionContext, system: ActorSystem, materializer: ActorMaterializer)
   : Future[String] = {
     logger.info("getGamesInProgressDoc")
     for {
-      cookies <- WebFetcher.loginPost(login, password)
       response <- WebFetcher.getGamesInProgressResponse(cookies)
       doc <- Unmarshal(response.entity).to[String]
     } yield doc
@@ -90,5 +89,4 @@ object WebFetcher extends StrictLogging with ProxyTools {
     import scala.collection.breakOut
     cookies.map(c => c.groupBy(_.name).map(_._2.last)(breakOut))
   }
-
 }
