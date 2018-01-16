@@ -25,12 +25,13 @@ import com.typesafe.scalalogging.StrictLogging
 import org.fbc.experiments.akkahttpfetch.actuators.{GameActions, WebFetcher}
 import org.fbc.experiments.akkahttpfetch.api.GameApi
 import org.fbc.experiments.akkahttpfetch.model._
-import org.fbc.experiments.akkahttpfetch.utils.DebugUtils
+import org.fbc.experiments.akkahttpfetch.utils.{DebugUtils, HtmlExporter}
 
+import scala.collection.parallel.immutable
 import scala.concurrent._
 import scala.util.{Failure, Success}
 
-object Main extends App with GameApi with StrictLogging with DebugUtils {
+object Main extends App with GameApi with StrictLogging with DebugUtils with HtmlExporter {
   implicit val system: ActorSystem = ActorSystem("fbc")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -94,7 +95,10 @@ object Main extends App with GameApi with StrictLogging with DebugUtils {
 
   logger.info("Before fetch")
 //  testGetActiveGameList()
-  testGetGameDetails("37709")
+//  testGetGameDetails("37709")
+  val pieces:Map[String, Piece] = Map("A5" -> Piece("BLACK", "TOOT", 1),
+    "A4" -> Piece("WHITE", "TZAAR", 1), "B4" -> Piece("WHITE", "TZAARA", 2), "C4" -> Piece("WHITE", "TOOT", 3))
+  export(GameBoard(pieces, new GameMetadata("", "", "", "", "")))
   logger.info("This is it....")
   harakiri(4)
 }

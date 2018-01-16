@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1600">
+    <defs>
+        <linearGradient id="a">
+            <stop offset="0" stop-color="#333" />
+            <stop offset="1" stop-color="#333" stop-opacity="0" />
+        </linearGradient>
+        <radialGradient id="b" cx="157.598" cy="158.412" r="134.07" gradientTransform="matrix(1.06717 1.06354 -.7059 .7083 101.237 -121.404)" gradientUnits="userSpaceOnUse" fy="158.412" fx="157.598" xlink:href="#a"/>
+        <circle id="piecePlate" cx="157.598" cy="158.412" r="134.07" fill="url(#b)" opacity=".99"/>
+    </defs>
+    <symbol id="board" stroke="#000" stroke-width="2">
+        <path fill="#ececec" d="M400 21.186l-82.016 47.35-82.015 47.353-82.02 47.35-82.018 47.35v378.814l82.017 47.352 82.016 47.35 82.014 47.352L400 778.81l82.016-47.35 82.015-47.35 82.02-47.35 82.018-47.353V210.59l-82.017-47.352-82.016-47.35-82.014-47.353L400 21.187zm0 284.11l82.016 47.352v94.704L400 494.702l-82.016-47.35v-94.704L400 305.298z" opacity=".99"/>
+        <path fill="none" d="M153.952 163.24l574.112 331.464M235.968 115.89L728.064 400M317.984 68.537l410.08 236.76M482.016 68.537l-410.08 236.76M564.032 115.89L71.936 400m574.112-236.76L71.936 494.704m0-189.408L646.048 636.76M71.936 400l492.096 284.11M71.936 494.704l410.08 236.76m246.048-426.168L153.952 636.76M728.064 400L235.968 684.11m492.096-189.406l-410.08 236.76m0-662.927v662.926M235.968 115.89v568.22m-82.016-520.87v473.52M482.016 68.537v662.926M646.048 163.24v473.52M400 494.704v284.11M71.936 589.408l246.048-142.056m164.032-94.704l246.048-142.056m0 378.816L482.016 447.352m-164.032-94.704L71.936 210.592M400 21.185v284.11M564.032 115.89v568.22"/>
+    </symbol>
+    <symbol id="white1" viewBox="0 0 300 300">
+        <use xlink:href="#piecePlate"/>
+        <g stroke="gray">
+            <circle cx="150" cy="150" r="134.07"  fill="#fff" stroke-width="5.333" opacity=".99"/>
+            <circle cx="150" cy="150" r="44.344"  fill="none" stroke-width="2.667" opacity=".99"/>
+            <circle cx="150" cy="150" r="73.906"  fill="none" stroke-width="2.667" opacity=".99"/>
+            <circle cx="150" cy="150" r="103.468" fill="none" stroke-width="2.667" opacity=".99" />
+        </g>
+    </symbol>
+    <symbol id="white2" viewBox="0 0 300 300">
+        <use xlink:href="#piecePlate"/>
+        <g stroke="gray">
+            <circle cx="150" cy="150" r="134.07"  fill="#fff" stroke-width="5.333" opacity=".99" />
+            <circle cx="150" cy="150" r="103.468" fill="none" stroke-width="2.667" opacity=".99" />
+            <circle cx="150" cy="150" r="73.906"  fill="none" stroke-width="2.667" opacity=".99" />
+            <circle cx="150" cy="150" r="44.344"  fill="gray" stroke-width="2.667" opacity=".99" />
+        </g>
+    </symbol>
+    <symbol id="white3" viewBox="0 0 300 300">
+        <use xlink:href="#piecePlate"/>
+        <g stroke="gray">
+            <circle cx="150" cy="150" r="134.07"  fill="#fff" stroke-width="5.333" opacity=".99"/>
+            <circle cx="150" cy="150" r="103.468" fill="gray" stroke-width="2.667" opacity=".99"/>
+            <circle cx="150" cy="150" r="73.906"  fill="#fff" stroke-width="2.667" opacity=".99"/>
+            <circle cx="150" cy="150" r="44.344"  fill="gray" stroke-width="2.667" opacity=".99"/>
+        </g>
+    </symbol>
+    <symbol id="black1" viewBox="0 0 300 300">
+        <use xlink:href="#piecePlate"/>
+        <circle cx="150" cy="150" r="134.07"  stroke="gray" stroke-width="5.333" opacity=".99"/>
+        <circle cx="150" cy="150" r="103.468" stroke="gray" stroke-width="2.667" opacity=".99"/>
+        <circle cx="150" cy="150" r="73.906"  stroke="gray" stroke-width="2.667" opacity=".99"/>
+        <circle cx="150" cy="150" r="44.344"  stroke="gray" stroke-width="2.667" opacity=".99"/>
+    </symbol>
+    <symbol id="black2" viewBox="0 0 300 300">
+        <circle cx="150" cy="150" r="134.07"  stroke="gray" stroke-width="5.333" opacity=".99"/>
+        <circle cx="150" cy="150" r="103.468" stroke="gray" stroke-width="2.667" opacity=".99"/>
+        <circle cx="150" cy="150" r="73.906"  stroke="gray" stroke-width="2.667" opacity=".99"/>
+        <circle cx="150" cy="150" r="44.344"  stroke="gray" fill="#ccc" stroke-width="2.667" opacity=".99"/>
+    </symbol>
+    <symbol id="black3" viewBox="0 0 300 300">
+        <circle cx="150" cy="150" r="134.07" stroke="gray" stroke-width="5.333" opacity=".99"/>
+        <circle cx="150" cy="150" r="103.468" fill="#ccc"  stroke="gray" stroke-width="2.667" opacity=".99"/>
+        <circle cx="150" cy="150" r="73.906" stroke="gray" stroke-width="2.667" opacity=".99"/>
+        <circle cx="150" cy="150" r="44.344" fill="#ccc" stroke="gray" stroke-width="2.667" opacity=".99"/>
+    </symbol>
+    <use xlink:href="#board" x="0" y="0" transform="scale(2)"/>
+    <use xlink:href="#black3" x="0" y="0" transform="scale(0.1)"/>
+    <use xlink:href="#black2" x="1200" y="0" transform="scale(0.1)" />
+    <use xlink:href="#black1" x="2400" y="0" transform="scale(0.1)"/>
+    <use xlink:href="#white3" x="0" y="1200" transform="scale(0.1)"/>
+    <use xlink:href="#white2" x="1200" y="1200" transform="scale(0.1)" />
+
+    <g>
+        <use xlink:href="#white1" x="2500" y="2500" transform="scale(0.1)"/>
+        <use xlink:href="#white1" x="2400" y="2400" transform="scale(0.1)"/>
+        <title>3</title>
+    </g>
+    <g x="700" y="700" transform="scale(0.5)">
+        <use xlink:href="#white_2"/>
+        <title>2</title>
+    </g>
+</svg>

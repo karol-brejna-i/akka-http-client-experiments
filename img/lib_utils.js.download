@@ -1,0 +1,152 @@
+var ns4,ie4;
+			
+ns4 = (document.layers)? true:false;
+ie4 = (document.all)? true:false;
+			
+function selectAllOptions(pSelect) {
+  var nbrOptions = pSelect.length;
+  if (nbrOptions > 0) {
+  	for (var i=0; i < nbrOptions; i++) {
+  		pSelect.options[i].selected = true;
+  	}
+	}
+}
+
+function replace(string,text,by) {
+	// Replaces text with by in string
+  var strLength = string.length, txtLength = text.length;
+  if ((strLength == 0) || (txtLength == 0)) return string;
+
+  var i = string.indexOf(text);
+  if ((!i) && (text != string.substring(0,txtLength))) return string;
+  if (i == -1) return string;
+
+  var newstr = string.substring(0,i) + by;
+
+  if (i+txtLength < strLength)
+      newstr += replace(string.substring(i+txtLength,strLength),text,by);
+
+  return newstr;
+}
+
+function popup(pURL,pNom,pW,pH) {
+	var vsOptions
+	vsOptions = "dependent=1,location=0,menubar=0,toolbar=0,scrollbars=1,resizable=1,width="+pW+",height="+pH;
+	return window.open(pURL,pNom,vsOptions);
+}
+
+function preload(imgObj,imgSrc){
+	eval(imgObj+' = new Image()')
+	eval(imgObj+'.src = "'+imgSrc+'"')
+}
+
+function changeImage(layer,imgName,imgObj){
+	if (ns4 && layer!=null) eval ('document.'+layer+'.document.images["'+imgName+'"].src = '+imgObj+'.src')
+	else document.images[imgName].src = eval(imgObj+".src")
+}
+
+function show(id) {
+	if (ns4) document.layers[id].visibility = "show";
+	else if (ie4) document.all[id].style.visibility = "visible";
+}
+
+function hide(id) {
+	if (ns4) document.layers[id].visibility = "hide";
+	else if (ie4) document.all[id].style.visibility = "hidden";
+}
+
+function divWrite(id,nestref,text) 
+{
+	if (ns4) {
+		var lyr = (nestref)? eval('document.'+nestref+'.document.'+id+'.document') : document.layers[id].document;
+		lyr.open();
+		lyr.write(text);
+		lyr.close();
+	}
+	else if (ie4) document.all[id].innerHTML = text;
+}
+
+function isEmail(ps_src){
+	var vt_txt = new Array(2);	// tableau qui va contenir les chaines avant et apres l'arobase
+	var vi_arobase;				// va contenir l'index de l'arobase dans la chaine
+	var vc_tmp;					// caractere temporaire
+		
+	vi_arobase = ps_src.indexOf("@");
+	if (vi_arobase > 0 &&							// l'arobase ne doit pas etre en premier...
+		vi_arobase != (ps_src.length - 1) &&		// ... ni en dernier...
+		vi_arobase == ps_src.lastIndexOf("@") &&	// ... et il ne peut en rester qu'un
+		ps_src.indexOf("..") < 0)					// il ne peut y avoir ".."
+	{
+		vt_txt[0] = ps_src.substring(0,vi_arobase);					// prend la chaine avant l'arobase <=> nom
+		vt_txt[1] = ps_src.substring(vi_arobase + 1,ps_src.length);	// prend la chaine apres l'arobase <=> adresse
+		if ((vt_txt[0].indexOf(".") != 0) &&							// pas de point en debut de chaine
+			(vt_txt[1].indexOf(".") > 0) &&								// idem
+			(vt_txt[0].lastIndexOf(".") < (vt_txt[0].length - 1)) &&	// ni en fin de chaine
+			(vt_txt[1].lastIndexOf(".") < (vt_txt[1].length - 2)))		// pas un des 2 derniers caracteres
+		{
+			for (var vi_nbr = 0;vi_nbr < 2;vi_nbr++)		// boucle sur les deux chaines
+				for (var vi_char_nbr = 0;vi_char_nbr < vt_txt[vi_nbr].length;vi_char_nbr++)
+				{
+					vc_tmp = vt_txt[vi_nbr].charAt(vi_char_nbr);// si le caractere recupere
+					if ((vc_tmp < '0' || vc_tmp > '9') &&		// n'est pas un chiffre
+						(vc_tmp < 'a' || vc_tmp > 'z') &&		// n'est pas une minuscule
+						(vc_tmp < 'A' || vc_tmp > 'Z') &&		// n'est pas une majuscule
+						vc_tmp != '.' && vc_tmp != '_' &&		// ni un autre caractere
+						vc_tmp != '-')							// autorise...
+							return false;						// alors l'adresse est invalide
+				}
+			return true;
+		}
+	}
+	return false;
+}
+
+function copyOption(pSource,pDest) {
+    var index = pSource.selectedIndex;
+    if (index > -1) {
+			lbStop = false;
+			// gestion des doublons, on ne peut insérer un élément déjà présent
+			for (var i=0; i < pDest.options.length; i++) {
+				if (pDest.options[i].value == pSource.options[index].value) {
+					lbStop = true;
+				}
+			}
+			if (!lbStop) {		
+	  	  var newoption = new Option(pSource.options[index].text, pSource.options[index].value, true, true);
+  	  	pDest.options[pDest.length] = newoption;
+    		if (!document.getElementById) history.go(0);
+			}
+    }
+}
+
+function deleteOption(pSelect) {
+    var index = pSelect.selectedIndex;
+    if (index > -1) {
+	    pSelect.options[index] = null;
+		}
+}
+
+function transferOption(pSource,pDest) {
+    var index = pSource.selectedIndex;
+    if (index > -1) {
+        var newoption = new Option(pSource.options[index].text, pSource.options[index].value, true, true);
+        pDest.options[pDest.length] = newoption;
+        pSource.options[index] = null;
+        pSource.selectedIndex = 0;
+    }
+}
+
+// Insert at Claret position. Code from
+// http://www.faqts.com/knowledge_base/view.phtml/aid/1052/fid/130
+function storeCaret(textEl) {
+	if (textEl.createTextRange) textEl.caretPos = document.selection.createRange().duplicate();
+}
+
+function montrerBlock(psObj) {
+	document.getElementById(psObj).style.display="block"
+}
+
+function cacherBlock(psObj) {
+	document.getElementById(psObj).style.display="none"
+}
+	
